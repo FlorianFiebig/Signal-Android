@@ -151,7 +151,7 @@ class BenchmarkSetupActivity : BaseActivity() {
       val recipient: Recipient = Recipient.resolved(it)
 
       TestMessages.insertIncomingTextMessage(other = recipient, body = "Press and hold the voice message below, then pick Transcribe.")
-      TestMessages.insertIncomingVoiceMessage(other = recipient, audio = audio)
+      TestMessages.insertIncomingVoiceMessage(context = this, other = recipient, audio = audio)
 
       SignalDatabase.messages.setAllMessagesRead()
       SignalDatabase.threads.update(SignalDatabase.threads.getOrCreateThreadIdFor(recipient = recipient), true)

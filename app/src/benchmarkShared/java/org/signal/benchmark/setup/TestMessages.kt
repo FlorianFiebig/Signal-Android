@@ -1,11 +1,14 @@
 package org.signal.benchmark.setup
 
+import android.content.Context
 import org.thoughtcrime.securesms.attachments.Cdn
 import org.thoughtcrime.securesms.attachments.PointerAttachment
+import org.thoughtcrime.securesms.attachments.UriAttachment
 import org.thoughtcrime.securesms.database.AttachmentTable
 import org.thoughtcrime.securesms.database.MessageType
 import org.thoughtcrime.securesms.database.SignalDatabase
 import org.thoughtcrime.securesms.database.TestDbUtils
+import org.thoughtcrime.securesms.dependencies.AppDependencies
 import org.thoughtcrime.securesms.mms.IncomingMessage
 import org.thoughtcrime.securesms.mms.OutgoingMessage
 import org.thoughtcrime.securesms.mms.QuoteModel
@@ -119,15 +122,44 @@ object TestMessages {
 
   /**
    * Inserts a voice message whose audio is really on disk, so that playback and transcription have something to chew on.
+   *
+   * The audio goes through [BlobProvider] and is inserted as a local attachment, the same path a recording takes, since
+   * the pointer that [insertIncomingVoiceMessage] fakes has no remote key to finalize a download against.
    */
-  fun insertIncomingVoiceMessage(other: Recipient, audio: ByteArray, timestamp: Long? = null): Long {
-    val messageId = insertIncomingVoiceMessage(other = other, timestamp = timestamp)
+  fun insertIncomingVoiceMessage(context: Context, other: Recipient, audio: ByteArray, timestamp: Long? = null): Long {
+    val uri = AppDependencies.blobs
+      .forData(audio)
+      .withMimeType("audio/mp4")
+      .createForSingleSessionOnDisk(context)
 
-    SignalDatabase.attachments.getAttachmentsForMessage(messageId).forEach { attachment ->
-      SignalDatabase.attachments.finalizeAttachmentAfterDownload(messageId, attachment.attachmentId, audio.inputStream())
-    }
+    val attachment = UriAttachment(
+      uri = uri,
+      contentType = "audio/mp4",
+      transferState = AttachmentTable.TRANSFER_PROGRESS_DONE,
+      size = audio.size.toLong(),
+      fileName = null,
+      voiceNote = true,
+      borderless = false,
+      videoGif = false,
+      quote = false,
+      quoteTargetContentType = null,
+      caption = null,
+      stickerLocator = null,
+      blurHash = null,
+      audioHash = null,
+      transformProperties = null
+    )
 
-    return messageId
+    val message = IncomingMessage(
+      type = MessageType.NORMAL,
+      from = other.id,
+      sentTimeMillis = timestamp ?: System.currentTimeMillis(),
+      serverTimeMillis = timestamp ?: System.currentTimeMillis(),
+      receivedTimeMillis = timestamp ?: System.currentTimeMillis(),
+      attachments = listOf(attachment)
+    )
+
+    return insertIncomingMessage(recipient = other, message = message)
   }
 
   private fun insertIncomingMessage(recipient: Recipient, message: IncomingMessage, failed: Boolean = false): Long {

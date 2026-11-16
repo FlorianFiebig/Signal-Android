@@ -21,6 +21,7 @@ import java.util.Optional
 import java.util.concurrent.Semaphore
 import java.util.concurrent.TimeUnit
 import java.util.concurrent.TimeoutException
+import kotlin.time.Duration
 
 /**
  * A [WebSocketConnection] that provides a way to add "incoming" WebSocket payloads
@@ -166,6 +167,18 @@ class BenchmarkWebSocketConnection : WebSocketConnection {
     }
 
     return Single.error(okio.IOException("fake timeout"))
+  }
+
+  /**
+   * The default throws [UnsupportedOperationException], which takes the whole app down from whatever thread sent the
+   * request, so answer the same way [sendRequest] does.
+   */
+  override suspend fun sendRequestSuspend(request: WebSocketRequestMessage, timeout: Duration): WebsocketResponse {
+    if (request.verb == "PUT" && request.path?.startsWith("/v1/messages/") == true) {
+      return WebsocketResponse(200, SendMessageResponse().toJson(), emptyList<String>(), true)
+    }
+
+    throw okio.IOException("fake timeout")
   }
 
   fun addQueueEmptyMessage() {

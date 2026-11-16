@@ -1,0 +1,27 @@
+app/src/benchmarkShared/java/org/signal/benchmark/setup/TestMessages.kt
+  s_173ecd41b99465::t_010d55fe81741b 130
+  s_173ecd41b99465::t_6afcd91d42bee5 3,6
+  s_173ecd41b99465::t_e3c9bdbe423ffc 125-127,129,131-133,135-160,162
+  s_173ecd41b99465::t_c7ef49df59c59f 11
+app/src/benchmarkShared/java/org/signal/benchmark/BenchmarkSetupActivity.kt
+  s_173ecd41b99465::t_02547161e66833 154
+app/src/benchmarkShared/java/org/whispersystems/signalservice/internal/websocket/BenchmarkWebSocketConnection.kt
+  s_173ecd41b99465::t_029d515b4ccff5 24
+  s_173ecd41b99465::t_0c7b8c309e4eb7 172-183
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.5",
+  "base_commit_sha": "391b00bcf6d0377e3bcf881dacf7b4a6ba01aae0",
+  "prompts": {},
+  "sessions": {
+    "s_173ecd41b99465": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "18e4493c-01f8-4fc7-bdcf-a22752578c1e",
+        "model": "claude-opus-5"
+      },
+      "human_author": "Florian Fiebig <florian.fiebig@mailbox.org>"
+    }
+  }
+}

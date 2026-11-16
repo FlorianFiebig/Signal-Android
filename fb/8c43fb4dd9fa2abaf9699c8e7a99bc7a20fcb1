@@ -1,0 +1,109 @@
+app/src/main/java/org/thoughtcrime/securesms/database/helpers/migration/V333_AddAttachmentTranscriptColumn.kt
+  s_173ecd41b99465::t_1570ea7676f89c 1-13
+app/src/main/java/org/thoughtcrime/securesms/attachments/DatabaseAttachment.kt
+  s_173ecd41b99465::t_c5d9aab1c18aa3 53-56
+  s_173ecd41b99465::t_31362f572f580f 93-94
+  s_173ecd41b99465::t_8900e2e9f1ab21 132
+  s_173ecd41b99465::t_1d77e9923f06cf 147
+  s_173ecd41b99465::t_5929155f55a191 163
+app/src/main/java/org/thoughtcrime/securesms/util/MessageRecordUtil.kt
+  s_173ecd41b99465::t_8b07030c79d49a 38-51
+  s_173ecd41b99465::t_f99473d001d1e6 7-8
+app/src/main/java/org/thoughtcrime/securesms/keyvalue/SettingsValues.kt
+  s_173ecd41b99465::t_72c6c26761014c 425-427
+  s_173ecd41b99465::t_a4975fca306aa9 85
+settings.gradle.kts
+  s_173ecd41b99465::t_3a7354abdcc8db 62-67
+  s_173ecd41b99465::t_e4f606345c87d1 61
+feature/app-settings/src/main/java/org/signal/appsettings/chats/ChatsSettingsState.kt
+  s_173ecd41b99465::t_aafdfe9c26c66e 24-30
+app/src/main/java/org/thoughtcrime/securesms/conversation/v2/ConversationFragment.kt
+  s_173ecd41b99465::t_1964bdac0a1c2f 180
+  s_173ecd41b99465::t_ef9be6777a3242 5187
+  s_173ecd41b99465::t_23f18a755a1be9 3653-3665,3667-3671,3674
+  s_173ecd41b99465::t_9aa0b0fe0607ca 3647-3652,3666,3672-3673,3675-3676
+  s_173ecd41b99465::t_3dabff7c5f89d8 417
+feature/app-settings/src/main/res/values/strings.xml
+  s_173ecd41b99465::t_6cd3e0aa9e2ce6 365-372
+app/src/test/java/org/thoughtcrime/securesms/audio/TranscriptionModelTest.kt
+  s_173ecd41b99465::t_2de1bd8af2dad9 1-38
+feature/app-settings/src/test/java/org/signal/appsettings/chats/ChatsSettingsScreenTest.kt
+  s_173ecd41b99465::t_733265befc6bb1 95-112
+  s_173ecd41b99465::t_24ab7e30c74e99 313-315
+  s_173ecd41b99465::t_98b634c4f31d8e 330-333
+app/src/main/java/org/thoughtcrime/securesms/conversation/ConversationItem.java
+  s_173ecd41b99465::t_f08e263a7511c1 1234-1241
+app/build.gradle.kts
+  s_173ecd41b99465::t_142e7c7f7e277f 829
+app/src/main/java/org/thoughtcrime/securesms/audio/VoiceNoteTranscriber.kt
+  s_173ecd41b99465::t_cd150570dd909f 1-13,19,21-25,27,30-35,39-40,42,44,46-48,50,52,57,60-61,63,68-69,75,79,82,84,99-101,103-107,109-129,131-163,165-183,185-199,201-209,212-214,224-225,227-259,261-281,283-297,302-305
+  s_173ecd41b99465::t_9d450372b31c55 260,282
+  s_173ecd41b99465::t_b0d6b4ca6cf9b0 45
+  s_173ecd41b99465::t_341277817ae263 298-301
+  s_173ecd41b99465::t_16242ae2139dcb 14-18,20,26,28-29,36-38,41,43,49,51,53-56,58-59,62,64-67,70-74,76-78,80-81,83,85-98,102,108,130,164,184,200,210-211,215-223,226
+app/src/test/java/org/thoughtcrime/securesms/audio/VoiceNoteTranscriberTest.kt
+  s_173ecd41b99465::t_fbdfb88463550b 1-80
+app/src/main/res/values/strings.xml
+  s_173ecd41b99465::t_23b66bcf58c8e6 3997-3998
+  s_173ecd41b99465::t_be58832c80c3fb 647-650
+app/src/main/java/org/thoughtcrime/securesms/database/helpers/SignalDatabaseMigrations.kt
+  s_173ecd41b99465::t_eddc84ffeac847 188
+  s_173ecd41b99465::t_023b0c11a008dd 381-382,385
+feature/app-settings/src/main/java/org/signal/appsettings/chats/ChatsSettingsScreen.kt
+  s_173ecd41b99465::t_3c9e592c0f396c 39
+  s_173ecd41b99465::t_cbabb65002b38c 132-147
+  s_173ecd41b99465::t_24b7a95377d981 131
+app/src/main/java/org/thoughtcrime/securesms/conversation/ReactionAction.kt
+  s_173ecd41b99465::t_771cba74b6f40f 27-28
+app/src/main/java/org/thoughtcrime/securesms/conversation/ReactionMenu.kt
+  s_173ecd41b99465::t_48b84cd4ec9977 9,11,15-16
+  s_173ecd41b99465::t_8f4545cf792f38 81,83-84
+  s_173ecd41b99465::t_11f25e51032a92 82
+  s_173ecd41b99465::t_888d42e198a90a 124-136
+gradle/libs.versions.toml
+  s_173ecd41b99465::t_55ad29a0a1ccfa 185
+feature/app-settings/src/main/java/org/signal/appsettings/chats/ChatsSettingsEvents.kt
+  s_173ecd41b99465::t_1ab4b83a3bcd90 45-50
+app/src/main/java/org/thoughtcrime/securesms/components/settings/app/chats/ChatsSettingsViewModel.kt
+  s_173ecd41b99465::t_00ffcc6390e963 23
+  s_173ecd41b99465::t_df715edca7aa4a 51-53
+  s_173ecd41b99465::t_6e36c57743223e 63-66
+  s_173ecd41b99465::t_4d90be8210d246 85-88
+  s_173ecd41b99465::t_07ed25c2c5ea46 137-152
+app/src/main/java/org/thoughtcrime/securesms/database/AttachmentTable.kt
+  s_173ecd41b99465::t_b5d12be3685d6d 2715-2725
+  s_173ecd41b99465::t_bf1bbca405e1fd 295-296
+  s_173ecd41b99465::t_e97be03c1e233f 188-190
+  s_173ecd41b99465::t_fb2e71bc58648e 244-245
+  s_173ecd41b99465::t_3e5d94dd133174 3926
+  s_173ecd41b99465::t_6a67a4b55e50e0 3931-3937
+  s_173ecd41b99465::t_9a5ec342c7e8f8 3927
+app/src/main/java/org/thoughtcrime/securesms/components/settings/app/chats/ChatsSettingsRepository.kt
+  s_173ecd41b99465::t_1536b90d576ff3 8
+  s_173ecd41b99465::t_59211aa336b2c5 50-71
+gradle/verification-metadata.xml
+  s_173ecd41b99465::t_e6b71b429ffaee 4342-4349
+app/src/main/java/org/thoughtcrime/securesms/audio/TranscriptionModel.kt
+  s_173ecd41b99465::t_66aeb239ce335d 1-10,19,21-52,57-61,68-69,106-157,161,163-166,168-215
+  s_173ecd41b99465::t_f1da9c585c54c0 20
+  s_173ecd41b99465::t_d78f03d1e8051d 11-18
+  s_173ecd41b99465::t_588c5f094de2b3 53-56
+  s_173ecd41b99465::t_c4b1c0d0da754a 62-67,70-105
+  s_173ecd41b99465::t_c5a7a08a30b91d 158-160,162,167
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.5",
+  "base_commit_sha": "fb8c43fb4dd9fa2abaf9699c8e7a99bc7a20fcb1",
+  "prompts": {},
+  "sessions": {
+    "s_173ecd41b99465": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "18e4493c-01f8-4fc7-bdcf-a22752578c1e",
+        "model": "claude-opus-5"
+      },
+      "human_author": "Florian Fiebig <florian.fiebig@mailbox.org>"
+    }
+  }
+}

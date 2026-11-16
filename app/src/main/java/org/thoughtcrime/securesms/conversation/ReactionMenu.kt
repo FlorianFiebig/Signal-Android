@@ -122,12 +122,11 @@ object ReactionMenu {
   }
 
   /**
-   * True for a received voice message that is not transcribed yet, on a device that can transcribe it offline.
+   * True for a voice message that is not transcribed yet, on a device that can transcribe it offline.
    */
   @VisibleForTesting
   fun canTranscribe(context: Context, messageRecord: MessageRecord): Boolean {
-    return !messageRecord.isOutgoing &&
-      !messageRecord.isRemoteDelete &&
+    return !messageRecord.isRemoteDelete &&
       !messageRecord.isViewOnce &&
       messageRecord.voiceNoteTranscript() == null &&
       messageRecord.voiceNoteAttachment() != null &&

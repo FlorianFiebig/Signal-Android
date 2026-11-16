@@ -66,6 +66,7 @@ class BenchmarkSetupActivity : BaseActivity() {
         "thread-delete" -> setupThreadDelete()
         "thread-delete-group" -> setupThreadDeleteGroup()
         "backup-restore" -> setupBackupRestore()
+        "transcription" -> setupTranscription()
       }
       setupComplete = true
     }
@@ -136,6 +137,25 @@ class BenchmarkSetupActivity : BaseActivity() {
     val w2 = words[(recipientIndex * 7 + messageIndex * 3) % words.size]
     val w3 = words[(recipientIndex * 13 + messageIndex * 5) % words.size]
     return "$w1 $w2 $SEARCH_KEYWORD $w3 message $messageIndex"
+  }
+
+  /**
+   * A chat holding one received voice message, for trying out voice message transcription by hand.
+   */
+  private fun setupTranscription() {
+    TestUsers.setupSelf()
+
+    val audio = assets.open("transcription/sample.m4a").use { it.readBytes() }
+
+    TestUsers.setupTestRecipient().let {
+      val recipient: Recipient = Recipient.resolved(it)
+
+      TestMessages.insertIncomingTextMessage(other = recipient, body = "Press and hold the voice message below, then pick Transcribe.")
+      TestMessages.insertIncomingVoiceMessage(other = recipient, audio = audio)
+
+      SignalDatabase.messages.setAllMessagesRead()
+      SignalDatabase.threads.update(SignalDatabase.threads.getOrCreateThreadIdFor(recipient = recipient), true)
+    }
   }
 
   private fun setupMessageSend() {

@@ -1,0 +1,5 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- Keeps this build apart from a real Signal on the same phone -->
+    <string name="app_name" translatable="false">Signal Sideload</string>
+</resources>

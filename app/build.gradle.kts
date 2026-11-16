@@ -80,6 +80,7 @@ val selectableVariants = listOf(
   "playProdMocked",
   "playProdNonMinifiedMocked",
   "playProdBenchmark",
+  "playProdSideload",
   "playProdRelease",
   "playStagingDebug",
   "playStagingCanary",
@@ -107,7 +108,7 @@ tasks.withType(org.jetbrains.kotlin.gradle.tasks.KotlinCompile::class.java).conf
   if (isTestTask) {
     source("$projectDir/src/testShared")
   }
-  if (!isTestTask && (name.contains("Mocked") || name.contains("Benchmark"))) {
+  if (!isTestTask && (name.contains("Mocked") || name.contains("Benchmark") || name.contains("Sideload"))) {
     source("$projectDir/src/benchmarkShared/java")
   }
   if (isTestTask && name.contains("AndroidTest")) {
@@ -436,6 +437,21 @@ android {
       buildConfigField("String", "BUILD_VARIANT_TYPE", "\"Canary\"")
     }
 
+    /**
+     * A build that installs next to a real Signal and talks to a stubbed server, for trying out a change by hand
+     * without touching your account. [org.signal.benchmark.BenchmarkSetupActivity] seeds it with a chat.
+     */
+    create("sideload") {
+      initWith(getByName("debug"))
+      isDefault = false
+      isMinifyEnabled = false
+      matchingFallbacks += "debug"
+      applicationIdSuffix = ".sideload"
+      buildConfigField("String", "BUILD_VARIANT_TYPE", "\"Sideload\"")
+
+      manifestPlaceholders["applicationClass"] = "org.thoughtcrime.securesms.SideloadApplicationContext"
+    }
+
     create("quickstart") {
       initWith(getByName("debug"))
       isDefault = false
@@ -537,6 +553,11 @@ android {
 
   sourceSets {
     getByName("mocked") {
+      java.directories += "$projectDir/src/benchmarkShared/java"
+      manifest.srcFile("$projectDir/src/benchmarkShared/AndroidManifest.xml")
+    }
+
+    getByName("sideload") {
       java.directories += "$projectDir/src/benchmarkShared/java"
       manifest.srcFile("$projectDir/src/benchmarkShared/AndroidManifest.xml")
     }

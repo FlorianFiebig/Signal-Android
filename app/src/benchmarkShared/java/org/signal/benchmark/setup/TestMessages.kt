@@ -117,6 +117,19 @@ object TestMessages {
     return insertIncomingMessage(recipient = other, message = message, failed = false)
   }
 
+  /**
+   * Inserts a voice message whose audio is really on disk, so that playback and transcription have something to chew on.
+   */
+  fun insertIncomingVoiceMessage(other: Recipient, audio: ByteArray, timestamp: Long? = null): Long {
+    val messageId = insertIncomingVoiceMessage(other = other, timestamp = timestamp)
+
+    SignalDatabase.attachments.getAttachmentsForMessage(messageId).forEach { attachment ->
+      SignalDatabase.attachments.finalizeAttachmentAfterDownload(messageId, attachment.attachmentId, audio.inputStream())
+    }
+
+    return messageId
+  }
+
   private fun insertIncomingMessage(recipient: Recipient, message: IncomingMessage, failed: Boolean = false): Long {
     val id = insertIncomingMessage(recipient = recipient, message = message)
     if (failed) {

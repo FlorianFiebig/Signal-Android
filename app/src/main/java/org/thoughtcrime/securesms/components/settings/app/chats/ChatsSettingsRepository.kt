@@ -5,6 +5,7 @@ import kotlinx.coroutines.flow.StateFlow
 import org.signal.core.util.ThrottledDebouncer
 import org.signal.core.util.concurrent.SignalExecutors
 import org.signal.remoteconfig.RemoteConfig
+import org.thoughtcrime.securesms.audio.TranscriptionModel
 import org.thoughtcrime.securesms.backup.LocalExportProgress
 import org.thoughtcrime.securesms.components.settings.app.chats.folders.ChatFoldersRepository
 import org.thoughtcrime.securesms.database.SignalDatabase
@@ -45,6 +46,28 @@ object ChatsSettingsRepository {
   }
 
   fun isKeepMutedChatsArchived(): Boolean = SignalStore.settings.keepMutedChatsArchived
+
+  fun isVoiceMessageTranscriptionEnabled(): Boolean = SignalStore.settings.voiceMessageTranscription
+
+  fun transcriptionModelSizeMegabytes(): Int = (TranscriptionModel.downloadSize / 1024 / 1024).toInt()
+
+  fun observeTranscriptionModelDownload(): StateFlow<TranscriptionModel.DownloadState> = TranscriptionModel.downloadState
+
+  /** Turning transcription on installs the speech model if it is missing, turning it off gives the space back. */
+  fun setVoiceMessageTranscriptionEnabled(enabled: Boolean) {
+    SignalStore.settings.voiceMessageTranscription = enabled
+
+    val context = AppDependencies.application
+
+    if (enabled) {
+      if (!TranscriptionModel.isInstalled(context)) {
+        TranscriptionModel.startDownload(context)
+      }
+    } else {
+      TranscriptionModel.cancelDownload()
+      SignalExecutors.BOUNDED_IO.execute { TranscriptionModel.delete(context) }
+    }
+  }
 
   fun setKeepMutedChatsArchived(enabled: Boolean) {
     SignalStore.settings.keepMutedChatsArchived = enabled

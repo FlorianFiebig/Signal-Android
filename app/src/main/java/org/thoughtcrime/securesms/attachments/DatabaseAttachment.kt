@@ -50,6 +50,10 @@ class DatabaseAttachment : Attachment {
   private val hasThumbnail: Boolean
   val displayOrder: Int
 
+  /** Local-only on-device transcript of a voice message, if one was made. */
+  @JvmField
+  val transcript: String?
+
   constructor(
     attachmentId: AttachmentId,
     mmsId: Long,
@@ -86,7 +90,8 @@ class DatabaseAttachment : Attachment {
     archiveThumbnailTransferState: AttachmentTable.ArchiveTransferState,
     uuid: UUID?,
     quoteTargetContentType: String?,
-    metadata: AttachmentMetadata?
+    metadata: AttachmentMetadata?,
+    transcript: String? = null
   ) : super(
     contentType = contentType,
     transferState = transferProgress,
@@ -124,6 +129,7 @@ class DatabaseAttachment : Attachment {
     this.archiveTransferState = archiveTransferState
     this.archiveThumbnailTransferState = archiveThumbnailTransferState
     this.metadata = metadata
+    this.transcript = transcript
   }
 
   constructor(parcel: Parcel) : super(parcel) {
@@ -138,6 +144,7 @@ class DatabaseAttachment : Attachment {
     archiveTransferState = AttachmentTable.ArchiveTransferState.deserialize(parcel.readInt())
     archiveThumbnailTransferState = AttachmentTable.ArchiveTransferState.deserialize(parcel.readInt())
     metadata = ParcelCompat.readParcelable(parcel, AttachmentMetadata::class.java.classLoader, AttachmentMetadata::class.java)
+    transcript = parcel.readString()
   }
 
   override fun writeToParcel(dest: Parcel, flags: Int) {
@@ -153,6 +160,7 @@ class DatabaseAttachment : Attachment {
     dest.writeInt(archiveTransferState.value)
     dest.writeInt(archiveThumbnailTransferState.value)
     dest.writeParcelable(metadata, 0)
+    dest.writeString(transcript)
   }
 
   override val uri: Uri?

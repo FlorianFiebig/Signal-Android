@@ -644,6 +644,10 @@
     <string name="ConversationFragment__replace_body">Pinning message will replace the oldest one</string>
     <!-- Dialog button when replacing the oldest pin -->
     <string name="ConversationFragment__replace">Replace</string>
+    <!-- Toast shown while a voice message is being turned into text on this device -->
+    <string name="ConversationFragment__transcribing_voice_message">Transcribing voice message…</string>
+    <!-- Toast shown when a voice message could not be turned into text -->
+    <string name="ConversationFragment__could_not_transcribe_voice_message">Couldn\'t transcribe this voice message</string>
 
     <!-- Title of Safety Tips bottom sheet dialog -->
     <string name="SafetyTips_title">Safety Tips</string>
@@ -3990,6 +3994,8 @@
     <string name="conversation_selection__menu_unpin_message">Unpin</string>
     <!-- Button to open the sticker pack a sticker message came from -->
     <string name="conversation_selection__menu_view_sticker_pack">View pack</string>
+    <!-- Button to turn a voice message into text on this device -->
+    <string name="conversation_selection__menu_transcribe">Transcribe</string>
 
     <!-- conversation_expiring_on -->
 

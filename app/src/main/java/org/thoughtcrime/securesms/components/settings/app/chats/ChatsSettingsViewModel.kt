@@ -20,6 +20,7 @@ import org.signal.appsettings.routes.navigateTo
 import org.signal.core.ui.compose.EventDrivenViewModel
 import org.signal.core.util.concurrent.SignalDispatchers
 import org.signal.core.util.logging.Log
+import org.thoughtcrime.securesms.audio.TranscriptionModel
 import org.thoughtcrime.securesms.backup.toBackupCreationProgress
 
 /**
@@ -47,7 +48,9 @@ class ChatsSettingsViewModel(
       isPlaintextExportEnabled = ChatsSettingsRepository.isPlaintextExportEnabled(),
       plaintextExportProgress = ChatsSettingsRepository.observePlaintextExportProgress().value.toBackupCreationProgress(),
       chatExportState = ChatExportState.None,
-      shouldAutoplayStickersAndGifs = ChatsSettingsRepository.isAutoplayStickersAndGifsEnabled()
+      shouldAutoplayStickersAndGifs = ChatsSettingsRepository.isAutoplayStickersAndGifsEnabled(),
+      voiceMessageTranscription = ChatsSettingsRepository.isVoiceMessageTranscriptionEnabled(),
+      transcriptionModelSizeMegabytes = ChatsSettingsRepository.transcriptionModelSizeMegabytes()
     )
   )
 
@@ -56,6 +59,10 @@ class ChatsSettingsViewModel(
   init {
     ChatsSettingsRepository.observePlaintextExportProgress()
       .onEach { onEvent(ChatsSettingsEvents.PlaintextExportProgressChanged(it.toBackupCreationProgress())) }
+      .launchIn(viewModelScope)
+
+    ChatsSettingsRepository.observeTranscriptionModelDownload()
+      .onEach { onEvent(it.toProgressEvent()) }
       .launchIn(viewModelScope)
   }
 
@@ -75,6 +82,10 @@ class ChatsSettingsViewModel(
       ChatsSettingsEvents.StartExportCanceled,
       ChatsSettingsEvents.ExportCompletionConfirmed -> _state.update { it.copy(chatExportState = ChatExportState.None, includeMediaInExport = false) }
       is ChatsSettingsEvents.AutoplayStickersAndGifsChanged -> setAutoplayStickersAndGifsEnabled(event.enabled)
+      is ChatsSettingsEvents.VoiceMessageTranscriptionChanged -> setVoiceMessageTranscription(event.enabled)
+      is ChatsSettingsEvents.TranscriptionModelProgressChanged -> _state.update {
+        it.copy(transcriptionModelDownloadPercent = event.percent, transcriptionModelDownloadFailed = event.failed)
+      }
       ChatsSettingsEvents.NavigateBackClicked -> parentEventEmitter.navigateBack()
       ChatsSettingsEvents.ChatFoldersClicked -> parentEventEmitter.navigateTo(AppSettingsRoute.ChatFoldersRoute.ChatFolders)
     }
@@ -121,6 +132,22 @@ class ChatsSettingsViewModel(
   private fun setKeepMutedChatsArchived(enabled: Boolean) {
     _state.update { it.copy(keepMutedChatsArchived = enabled) }
     ChatsSettingsRepository.setKeepMutedChatsArchived(enabled)
+  }
+
+  private fun setVoiceMessageTranscription(enabled: Boolean) {
+    _state.update { it.copy(voiceMessageTranscription = enabled, transcriptionModelDownloadFailed = false) }
+    ChatsSettingsRepository.setVoiceMessageTranscriptionEnabled(enabled)
+  }
+
+  private fun TranscriptionModel.DownloadState.toProgressEvent(): ChatsSettingsEvents.TranscriptionModelProgressChanged {
+    return when (this) {
+      TranscriptionModel.DownloadState.Idle -> ChatsSettingsEvents.TranscriptionModelProgressChanged(percent = null, failed = false)
+      TranscriptionModel.DownloadState.Failed -> ChatsSettingsEvents.TranscriptionModelProgressChanged(percent = null, failed = true)
+      is TranscriptionModel.DownloadState.Running -> ChatsSettingsEvents.TranscriptionModelProgressChanged(
+        percent = (downloadedBytes * 100 / totalBytes).toInt(),
+        failed = false
+      )
+    }
   }
 
   private fun setUseSystemEmoji(enabled: Boolean) {

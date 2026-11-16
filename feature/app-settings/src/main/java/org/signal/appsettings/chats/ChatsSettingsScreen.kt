@@ -36,6 +36,7 @@ object ChatsSettingsTestTags {
   const val SCROLLER = "scroller"
   const val ROW_GENERATE_LINK_PREVIEWS = "row-generate-link-previews"
   const val ROW_AUTOPLAY_STICKERS_AND_GIFS = "row-autoplay-stickers-and-gifs"
+  const val ROW_VOICE_MESSAGE_TRANSCRIPTION = "row-voice-message-transcription"
   const val ROW_USE_ADDRESS_BOOK = "row-use-address-book"
   const val ROW_KEEP_MUTED_CHATS_ARCHIVED = "row-keep-muted-chats-archived"
   const val ROW_CHAT_FOLDERS = "row-chat-folders"
@@ -124,6 +125,23 @@ fun ChatsSettingsScreen(
           enabled = state.isRegisteredAndUpToDate(),
           checked = state.keepMutedChatsArchived,
           onCheckChanged = { onEvent(ChatsSettingsEvents.KeepMutedChatsArchivedChanged(it)) }
+        )
+      }
+
+      item {
+        val downloadPercent = state.transcriptionModelDownloadPercent
+
+        Rows.ToggleRow(
+          modifier = Modifier.testTag(ChatsSettingsTestTags.ROW_VOICE_MESSAGE_TRANSCRIPTION),
+          text = stringResource(R.string.ChatsSettingsFragment__transcribe_voice_messages),
+          label = when {
+            downloadPercent != null -> stringResource(R.string.ChatsSettingsFragment__downloading_speech_model, downloadPercent)
+            state.transcriptionModelDownloadFailed -> stringResource(R.string.ChatsSettingsFragment__speech_model_download_failed)
+            else -> stringResource(R.string.ChatsSettingsFragment__downloads_a_speech_model_once, state.transcriptionModelSizeMegabytes)
+          },
+          enabled = state.isRegisteredAndUpToDate(),
+          checked = state.voiceMessageTranscription,
+          onCheckChanged = { onEvent(ChatsSettingsEvents.VoiceMessageTranscriptionChanged(it)) }
         )
       }
 

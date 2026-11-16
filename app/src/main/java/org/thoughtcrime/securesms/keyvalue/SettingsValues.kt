@@ -82,6 +82,7 @@ class SettingsValues internal constructor(store: KeyValueStore, private val cont
     private const val SENT_MEDIA_QUALITY = "settings.sentMediaQuality"
     private const val CENSORSHIP_CIRCUMVENTION_ENABLED = "settings.censorshipCircumventionEnabled"
     private const val KEEP_MUTED_CHATS_ARCHIVED = "settings.keepMutedChatsArchived"
+    private const val VOICE_MESSAGE_TRANSCRIPTION = "settings.voiceMessageTranscription"
     private const val USE_COMPACT_NAVIGATION_BAR = "settings.useCompactNavigationBar"
     private const val THREAD_TRIM_SYNC_TO_LINKED_DEVICES = "settings.storage.syncThreadTrimDeletes"
     private const val PASSPHRASE_DISABLED = "settings.passphrase.disabled"
@@ -420,6 +421,9 @@ class SettingsValues internal constructor(store: KeyValueStore, private val cont
   }
 
   var keepMutedChatsArchived: Boolean by booleanValue(KEEP_MUTED_CHATS_ARCHIVED, false)
+
+  /** Whether the user opted in to transcribing voice messages on this device. Local only, never synced. */
+  var voiceMessageTranscription: Boolean by booleanValue(VOICE_MESSAGE_TRANSCRIPTION, false)
 
   var useCompactNavigationBar: Boolean by booleanValue(USE_COMPACT_NAVIGATION_BAR, false)
 

@@ -93,6 +93,24 @@ class ChatsSettingsScreenTest {
   }
 
   @Test
+  fun givenTranscriptionOff_whenToggleClicked_thenIExpectTranscriptionOnEvent() {
+    setContent(createState(voiceMessageTranscription = false))
+
+    scrollTo(ChatsSettingsTestTags.ROW_VOICE_MESSAGE_TRANSCRIPTION)
+    composeTestRule.onNodeWithTag(ChatsSettingsTestTags.ROW_VOICE_MESSAGE_TRANSCRIPTION).performClick()
+
+    assertThat(events).contains(ChatsSettingsEvents.VoiceMessageTranscriptionChanged(true))
+  }
+
+  @Test
+  fun givenModelDownloading_whenScreenDisplayed_thenIExpectTheProgressLabel() {
+    setContent(createState(voiceMessageTranscription = true, transcriptionModelDownloadPercent = 42))
+
+    scrollTo(ChatsSettingsTestTags.ROW_VOICE_MESSAGE_TRANSCRIPTION)
+    composeTestRule.onNodeWithText(context.getString(R.string.ChatsSettingsFragment__downloading_speech_model, 42)).assertIsDisplayed()
+  }
+
+  @Test
   fun givenOneFolder_whenScreenDisplayed_thenIExpectTheAddFolderRow() {
     setContent(createState(folderCount = 1))
 
@@ -292,7 +310,9 @@ class ChatsSettingsScreenTest {
     isPlaintextExportEnabled: Boolean = true,
     plaintextExportProgress: BackupCreationProgress = BackupCreationProgress.Idle,
     chatExportState: ChatExportState = ChatExportState.None,
-    shouldAutoplayStickersAndGifs: Boolean = false
+    shouldAutoplayStickersAndGifs: Boolean = false,
+    voiceMessageTranscription: Boolean = false,
+    transcriptionModelDownloadPercent: Int? = null
   ): ChatsSettingsState {
     return ChatsSettingsState(
       generateLinkPreviews = generateLinkPreviews,
@@ -307,7 +327,10 @@ class ChatsSettingsScreenTest {
       isPlaintextExportEnabled = isPlaintextExportEnabled,
       plaintextExportProgress = plaintextExportProgress,
       chatExportState = chatExportState,
-      shouldAutoplayStickersAndGifs = shouldAutoplayStickersAndGifs
+      shouldAutoplayStickersAndGifs = shouldAutoplayStickersAndGifs,
+      voiceMessageTranscription = voiceMessageTranscription,
+      transcriptionModelDownloadPercent = transcriptionModelDownloadPercent,
+      transcriptionModelSizeMegabytes = 670
     )
   }
 }

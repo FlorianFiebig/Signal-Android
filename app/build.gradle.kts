@@ -826,6 +826,7 @@ dependencies {
   implementation(libs.rxjava3.rxkotlin)
   implementation(libs.rxdogtag)
   implementation(libs.kotlinx.serialization.json)
+  implementation(libs.sherpa.onnx)
 
   implementation(project(":lib:billing"))
   implementation(project(":feature:media-send"))

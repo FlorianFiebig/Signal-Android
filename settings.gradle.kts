@@ -59,6 +59,13 @@ dependencyResolutionManagement {
       url = uri("https://dl.cloudsmith.io/qxAgwaeEE1vN8aLU/mobilecoin/mobilecoin/maven/")
     }
     maven {
+      // sherpa-onnx, the on-device speech recognizer, publishes its Android AAR here and nowhere else.
+      url = uri("https://jitpack.io")
+      content {
+        includeGroupByRegex("com\\.github\\.k2-fsa.*")
+      }
+    }
+    maven {
       name = "SignalBuildArtifacts"
       url = uri("https://build-artifacts.signal.org/libraries/maven/")
       content {

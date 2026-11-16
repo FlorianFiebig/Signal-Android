@@ -362,6 +362,14 @@
     <string name="ChatsSettingsFragment__when_turned_on_stickers_and_gifs_will_play_automatically">When turned on, stickers and GIFs will play automatically</string>
     <!-- Biometrics prompt title shown before allowing the user to export chat history -->
     <string name="ChatsSettingsFragment__unlock_to_export_chat_history">Unlock to export chat history</string>
+    <!-- Title of the toggle row in chat settings that turns on transcribing voice messages -->
+    <string name="ChatsSettingsFragment__transcribe_voice_messages">Transcribe voice messages</string>
+    <!-- Description beneath the transcribe voice messages toggle row, where %1$d is the download size in megabytes -->
+    <string name="ChatsSettingsFragment__downloads_a_speech_model_once">Adds a Transcribe option when you press and hold a voice message. Downloads a %1$d MB speech model once, then works offline.</string>
+    <!-- Description beneath the transcribe voice messages toggle row while the speech model downloads, where %1$d is the percent done -->
+    <string name="ChatsSettingsFragment__downloading_speech_model">Downloading speech model, %1$d%%</string>
+    <!-- Description beneath the transcribe voice messages toggle row after the download failed -->
+    <string name="ChatsSettingsFragment__speech_model_download_failed">Download failed. Turn this on again to retry.</string>
     <string name="preferences__display_contact_photos_from_your_address_book_if_available">Prefer contact photos from your address book if available</string>
     <string name="preferences__generate_link_previews">Generate link previews</string>
     <!-- Preference menu item description for a toggle switch for preserving the archived state of muted chats. -->

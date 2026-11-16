@@ -4,6 +4,8 @@ package org.thoughtcrime.securesms.util
 
 import android.content.Context
 import org.thoughtcrime.securesms.R
+import org.thoughtcrime.securesms.attachments.DatabaseAttachment
+import org.thoughtcrime.securesms.database.AttachmentTable
 import org.thoughtcrime.securesms.database.MessageTypes
 import org.thoughtcrime.securesms.database.model.MessageRecord
 import org.thoughtcrime.securesms.database.model.MmsMessageRecord
@@ -32,6 +34,20 @@ fun MessageRecord.hasSharedContact(): Boolean = isMms && (this as MmsMessageReco
 fun MessageRecord.hasLocation(): Boolean = isMms && ((this as MmsMessageRecord).slideDeck.slides).any { slide -> slide.hasLocation() }
 
 fun MessageRecord.hasAudio(): Boolean = isMms && (this as MmsMessageRecord).slideDeck.audioSlide != null
+
+/** The voice message attachment of this message, if it has one that is downloaded. */
+fun MessageRecord.voiceNoteAttachment(): DatabaseAttachment? {
+  if (!isMms) {
+    return null
+  }
+
+  val attachment = (this as MmsMessageRecord).slideDeck.audioSlide?.asAttachment() as? DatabaseAttachment
+
+  return attachment?.takeIf { it.voiceNote && it.transferState == AttachmentTable.TRANSFER_PROGRESS_DONE }
+}
+
+/** The on-device transcript of this message's voice message, if one was made. */
+fun MessageRecord.voiceNoteTranscript(): String? = voiceNoteAttachment()?.transcript
 
 fun MessageRecord.isCaptionlessMms(context: Context): Boolean = isMms && isDisplayBodyEmpty(context) && (this as MmsMessageRecord).slideDeck.textSlide == null
 

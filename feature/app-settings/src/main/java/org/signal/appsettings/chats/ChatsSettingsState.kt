@@ -21,7 +21,13 @@ data class ChatsSettingsState(
   val plaintextExportProgress: BackupCreationProgress = BackupCreationProgress.Idle,
   val chatExportState: ChatExportState = ChatExportState.None,
   val includeMediaInExport: Boolean = false,
-  val shouldAutoplayStickersAndGifs: Boolean = false
+  val shouldAutoplayStickersAndGifs: Boolean = false,
+  val voiceMessageTranscription: Boolean = false,
+  /** Percent of the speech model downloaded, or null when no download is running. */
+  val transcriptionModelDownloadPercent: Int? = null,
+  val transcriptionModelDownloadFailed: Boolean = false,
+  /** How big the one-time speech model download is, in whole megabytes. */
+  val transcriptionModelSizeMegabytes: Int = 0
 ) {
   fun isRegisteredAndUpToDate(): Boolean {
     return !userUnregistered && !clientDeprecated

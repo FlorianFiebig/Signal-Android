@@ -6,10 +6,14 @@
 package org.thoughtcrime.securesms.conversation
 
 import android.content.Context
+import androidx.annotation.VisibleForTesting
 import org.thoughtcrime.securesms.R
+import org.thoughtcrime.securesms.audio.VoiceNoteTranscriber
 import org.thoughtcrime.securesms.components.menu.ActionItem
 import org.thoughtcrime.securesms.database.model.MessageRecord
 import org.thoughtcrime.securesms.recipients.Recipient
+import org.thoughtcrime.securesms.util.voiceNoteAttachment
+import org.thoughtcrime.securesms.util.voiceNoteTranscript
 import org.signal.core.ui.R as CoreUiR
 
 /**
@@ -74,6 +78,10 @@ object ReactionMenu {
       add(CoreUiR.drawable.symbol_stickerpack_24, R.string.conversation_selection__menu_view_sticker_pack, ReactionAction.VIEW_STICKER_PACK)
     }
 
+    if (canTranscribe(context, conversationMessage.messageRecord)) {
+      add(CoreUiR.drawable.symbol_text_24, R.string.conversation_selection__menu_transcribe, ReactionAction.TRANSCRIBE)
+    }
+
     if (menuState.shouldShowCopyAction()) {
       add(CoreUiR.drawable.symbol_copy_android_24, R.string.conversation_selection__menu_copy, ReactionAction.COPY)
     }
@@ -111,6 +119,19 @@ object ReactionMenu {
     add(CoreUiR.drawable.symbol_trash_24, R.string.conversation_selection__menu_delete, ReactionAction.DELETE)
 
     return Menu(items = items, canReact = menuState.shouldShowReactions())
+  }
+
+  /**
+   * True for a received voice message that is not transcribed yet, on a device that can transcribe it offline.
+   */
+  @VisibleForTesting
+  fun canTranscribe(context: Context, messageRecord: MessageRecord): Boolean {
+    return !messageRecord.isOutgoing &&
+      !messageRecord.isRemoteDelete &&
+      !messageRecord.isViewOnce &&
+      messageRecord.voiceNoteTranscript() == null &&
+      messageRecord.voiceNoteAttachment() != null &&
+      VoiceNoteTranscriber.isAvailable(context)
   }
 
   /** The reaction this message already carries from us, if any. */

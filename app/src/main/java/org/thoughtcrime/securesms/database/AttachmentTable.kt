@@ -185,6 +185,9 @@ class AttachmentTable(
     const val QUOTE_TARGET_CONTENT_TYPE = "quote_target_content_type"
     const val METADATA_ID = "metadata_id"
 
+    /** Local-only on-device transcript of a voice message. Never sent or backed up. */
+    const val TRANSCRIPT = "transcript"
+
     private const val DIRECTORY = "parts"
 
     const val TRANSFER_PROGRESS_DONE = 0
@@ -238,7 +241,8 @@ class AttachmentTable(
       THUMBNAIL_RESTORE_STATE,
       ARCHIVE_TRANSFER_STATE,
       ARCHIVE_THUMBNAIL_TRANSFER_STATE,
-      ATTACHMENT_UUID
+      ATTACHMENT_UUID,
+      TRANSCRIPT
     )
 
     private val PROJECTION_WITH_METADATA = PROJECTION.map { if (it == ID) "$TABLE_NAME.$ID" else it }.toTypedArray() + AttachmentMetadataTable.PROJECTION
@@ -288,7 +292,8 @@ class AttachmentTable(
         $OFFLOAD_RESTORED_AT INTEGER DEFAULT 0,
         $QUOTE_TARGET_CONTENT_TYPE TEXT DEFAULT NULL,
         $ARCHIVE_THUMBNAIL_TRANSFER_STATE INTEGER DEFAULT ${ArchiveTransferState.NONE.value},
-        $METADATA_ID INTEGER DEFAULT NULL REFERENCES ${AttachmentMetadataTable.TABLE_NAME} (${AttachmentMetadataTable.ID})
+        $METADATA_ID INTEGER DEFAULT NULL REFERENCES ${AttachmentMetadataTable.TABLE_NAME} (${AttachmentMetadataTable.ID}),
+        $TRANSCRIPT TEXT DEFAULT NULL
       )
       """
 
@@ -2707,6 +2712,17 @@ class AttachmentTable(
       .run()
   }
 
+  /** Stores the local on-device transcript of a voice message and refreshes the conversation showing it. */
+  fun writeTranscript(attachmentId: AttachmentId, mmsId: Long, transcript: String?) {
+    writableDatabase
+      .update(TABLE_NAME)
+      .values(TRANSCRIPT to transcript)
+      .where("$ID = ?", attachmentId.id)
+      .run()
+
+    notifyConversationListeners(messages.getThreadIdForMessage(mmsId))
+  }
+
   fun mediaDataSourceFor(attachmentId: AttachmentId, allowReadingFromTempFile: Boolean): MediaDataSource? {
     val dataInfo = getDataFileInfo(attachmentId)
     if (dataInfo != null) {
@@ -3907,8 +3923,16 @@ class AttachmentTable(
       archiveTransferState = ArchiveTransferState.deserialize(cursor.requireInt(ARCHIVE_TRANSFER_STATE)),
       archiveThumbnailTransferState = ArchiveTransferState.deserialize(cursor.requireInt(ARCHIVE_THUMBNAIL_TRANSFER_STATE)),
       uuid = UuidUtil.parseOrNull(cursor.requireString(ATTACHMENT_UUID)),
-      metadata = AttachmentMetadataTable.getMetadata(cursor)
+      metadata = AttachmentMetadataTable.getMetadata(cursor),
+      transcript = cursor.readTranscript()
     )
+  }
+
+  /** Not every projection over this table includes the transcript, e.g. the media overview queries. */
+  private fun Cursor.readTranscript(): String? {
+    val index = getColumnIndex(TRANSCRIPT)
+
+    return if (index >= 0) getString(index).nullIfEmpty() else null
   }
 
   private fun Cursor.readAttachments(): List<DatabaseAttachment> {

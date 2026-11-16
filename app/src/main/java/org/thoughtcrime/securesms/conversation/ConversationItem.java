@@ -1231,6 +1231,14 @@ public final class ConversationItem extends RelativeLayout implements BindableCo
       bodyText.setText(italics);
       bodyText.setVisibility(View.VISIBLE);
       bodyText.setOverflowText(null);
+    } else if (MessageRecordUtil.voiceNoteTranscript(messageRecord) != null && isCaptionlessMms(messageRecord)) {
+      String          transcript = MessageRecordUtil.voiceNoteTranscript(messageRecord);
+      SpannableString italics    = new SpannableString(transcript);
+      italics.setSpan(new StyleSpan(android.graphics.Typeface.ITALIC), 0, transcript.length(), Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
+
+      bodyText.setText(SearchUtil.getHighlightedSpan(locale, STYLE_FACTORY, italics, searchQuery, SearchUtil.STRICT));
+      bodyText.setOverflowText(null);
+      bodyText.setVisibility(View.VISIBLE);
     } else if (isCaptionlessMms(messageRecord) || isStoryReaction(messageRecord) || isGiftMessage(messageRecord) || messageRecord.isPaymentNotification() || messageRecord.isPaymentTombstone()) {
       bodyText.setText(null);
       bodyText.setOverflowText(null);

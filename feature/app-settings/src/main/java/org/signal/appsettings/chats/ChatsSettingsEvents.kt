@@ -42,6 +42,12 @@ sealed interface ChatsSettingsEvents {
 
   data class KeepMutedChatsArchivedChanged(val enabled: Boolean) : ChatsSettingsEvents
 
+  /** Turning this on downloads the speech model once, turning it off deletes it again. */
+  data class VoiceMessageTranscriptionChanged(val enabled: Boolean) : ChatsSettingsEvents
+
+  /** The speech model download reported new progress, or finished. */
+  data class TranscriptionModelProgressChanged(val percent: Int?, val failed: Boolean) : ChatsSettingsEvents
+
   data class UseSystemEmojiChanged(val enabled: Boolean) : ChatsSettingsEvents
 
   data class EnterKeySendsChanged(val enabled: Boolean) : ChatsSettingsEvents

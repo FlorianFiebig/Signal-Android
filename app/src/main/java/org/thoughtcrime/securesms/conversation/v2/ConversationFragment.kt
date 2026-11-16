@@ -177,6 +177,7 @@ import org.thoughtcrime.securesms.MuteDialog
 import org.thoughtcrime.securesms.R
 import org.thoughtcrime.securesms.attachments.AttachmentSaver
 import org.thoughtcrime.securesms.audio.AudioRecorder
+import org.thoughtcrime.securesms.audio.VoiceNoteTranscriber
 import org.thoughtcrime.securesms.backup.v2.ui.subscription.BackupUpgradeAvailabilityChecker
 import org.thoughtcrime.securesms.backup.v2.ui.warning.guardAgainstRecoveryKeyPaste
 import org.thoughtcrime.securesms.badges.gifts.OpenableGift
@@ -413,6 +414,7 @@ import org.thoughtcrime.securesms.util.padding
 import org.thoughtcrime.securesms.util.setIncognitoKeyboardEnabled
 import org.thoughtcrime.securesms.util.views.SimpleProgressDialog
 import org.thoughtcrime.securesms.util.visible
+import org.thoughtcrime.securesms.util.voiceNoteAttachment
 import org.thoughtcrime.securesms.verify.VerifyIdentityActivity
 import org.thoughtcrime.securesms.video.inline.InlineVideoCell
 import org.thoughtcrime.securesms.video.inline.InlineVideoController
@@ -3642,6 +3644,36 @@ class ConversationFragment :
     startActivity(StickerPackPreviewActivityV2.createIntent(StickerPackId(stickerLocator.packId), StickerPackKey(stickerLocator.packKey)))
   }
 
+  /**
+   * Transcribes a voice message on this device and stores the text with the attachment, which puts it in the chat.
+   */
+  private fun handleTranscribe(conversationMessage: ConversationMessage) {
+    val attachment = conversationMessage.messageRecord.voiceNoteAttachment() ?: return
+    val uri = attachment.uri ?: return
+    val context = requireContext().applicationContext
+
+    toast(R.string.ConversationFragment__transcribing_voice_message)
+
+    viewLifecycleOwner.lifecycleScope.launch {
+      val transcript = withContext(SignalDispatchers.IO) {
+        try {
+          VoiceNoteTranscriber.transcribe(context, uri)
+        } catch (e: Exception) {
+          Log.w(TAG, "Failed to transcribe voice message", e)
+          null
+        }
+      }
+
+      if (transcript.isNullOrBlank()) {
+        toast(R.string.ConversationFragment__could_not_transcribe_voice_message, toastDuration = Toast.LENGTH_LONG)
+      } else {
+        withContext(SignalDispatchers.IO) {
+          SignalDatabase.attachments.writeTranscript(attachment.attachmentId, attachment.mmsId, transcript)
+        }
+      }
+    }
+  }
+
   private fun showPaymentTombstoneLearnMoreDialog() {
     val dialogBuilder = MaterialAlertDialogBuilder(requireContext())
     dialogBuilder
@@ -5152,6 +5184,7 @@ class ConversationFragment :
         ReactionAction.STAR_MESSAGE -> handleStarMessages(setOf(conversationMessage.messageRecord.id))
         ReactionAction.UNSTAR_MESSAGE -> handleUnstarMessages(setOf(conversationMessage.messageRecord.id))
         ReactionAction.VIEW_STICKER_PACK -> handleViewStickerPack(conversationMessage)
+        ReactionAction.TRANSCRIBE -> handleTranscribe(conversationMessage)
       }
     }
   }

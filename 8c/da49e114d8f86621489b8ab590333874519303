@@ -1,0 +1,20 @@
+app/src/benchmarkShared/java/org/whispersystems/signalservice/internal/websocket/BenchmarkWebSocketConnection.kt
+  s_1114b930d8237a::t_ab64e5c075fae0 12,25,173-192
+  s_1114b930d8237a::t_68f4bf7b2973db 193
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.5",
+  "base_commit_sha": "8cda49e114d8f86621489b8ab590333874519303",
+  "prompts": {},
+  "sessions": {
+    "s_1114b930d8237a": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "32d033e3-b867-40fc-a47c-c020d23f0ae3",
+        "model": "claude-opus-5-5"
+      },
+      "human_author": "Florian Fiebig <florian.fiebig@mailbox.org>"
+    }
+  }
+}

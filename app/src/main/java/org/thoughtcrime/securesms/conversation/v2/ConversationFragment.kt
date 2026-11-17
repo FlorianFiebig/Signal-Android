@@ -3661,27 +3661,13 @@ class ConversationFragment :
    */
   private fun handleTranscribe(conversationMessage: ConversationMessage) {
     val attachment = conversationMessage.messageRecord.voiceNoteAttachment() ?: return
-    val uri = attachment.uri ?: return
-    val context = requireContext().applicationContext
+    val stored = VoiceNoteTranscriber.transcribeAndStore(requireContext(), attachment) ?: return
 
     toast(R.string.ConversationFragment__transcribing_voice_message)
 
     viewLifecycleOwner.lifecycleScope.launch {
-      val transcript = withContext(SignalDispatchers.IO) {
-        try {
-          VoiceNoteTranscriber.transcribe(context, uri)
-        } catch (e: Exception) {
-          Log.w(TAG, "Failed to transcribe voice message", e)
-          null
-        }
-      }
-
-      if (transcript.isNullOrBlank()) {
+      if (!stored.await()) {
         toast(R.string.ConversationFragment__could_not_transcribe_voice_message, toastDuration = Toast.LENGTH_LONG)
-      } else {
-        withContext(SignalDispatchers.IO) {
-          SignalDatabase.attachments.writeTranscript(attachment.attachmentId, attachment.mmsId, transcript)
-        }
       }
     }
   }

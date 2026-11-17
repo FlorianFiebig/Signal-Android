@@ -126,10 +126,13 @@ object ReactionMenu {
    */
   @VisibleForTesting
   fun canTranscribe(context: Context, messageRecord: MessageRecord): Boolean {
+    val attachment = messageRecord.voiceNoteAttachment()
+
     return !messageRecord.isRemoteDelete &&
       !messageRecord.isViewOnce &&
       messageRecord.voiceNoteTranscript() == null &&
-      messageRecord.voiceNoteAttachment() != null &&
+      attachment != null &&
+      !VoiceNoteTranscriber.isTranscribing(attachment) &&
       VoiceNoteTranscriber.isAvailable(context)
   }
 

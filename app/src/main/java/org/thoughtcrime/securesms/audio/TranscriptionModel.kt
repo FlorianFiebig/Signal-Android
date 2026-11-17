@@ -12,10 +12,13 @@ import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.cancelChildren
+import kotlinx.coroutines.ensureActive
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.isActive
 import kotlinx.coroutines.launch
+import okhttp3.OkHttpClient
 import okhttp3.Request
 import okio.Buffer
 import okio.buffer
@@ -79,14 +82,22 @@ object TranscriptionModel {
 
     scope.launch {
       try {
-        download(context) { downloaded, total -> _downloadState.value = DownloadState.Running(downloaded, total) }
+        download(context) { downloaded, total ->
+          // The download blocks, so this is where a cancel gets noticed: at most one buffer later.
+          ensureActive()
+          _downloadState.value = DownloadState.Running(downloaded, total)
+        }
         _downloadState.value = DownloadState.Idle
       } catch (e: CancellationException) {
+        // A progress update can slip in after cancelDownload() reset the state, so reset it again on the way out.
         _downloadState.value = DownloadState.Idle
         throw e
       } catch (e: Exception) {
-        Log.w(TAG, "Model download failed", e)
-        _downloadState.value = DownloadState.Failed
+        // Opting out deletes the files under a download that is hashing or moving one, which is no failure to show.
+        if (isActive) {
+          Log.w(TAG, "Model download failed", e)
+          _downloadState.value = DownloadState.Failed
+        }
       }
     }
   }
@@ -138,16 +149,30 @@ object TranscriptionModel {
 
   private fun download(context: Context, modelFile: ModelFile, onProgress: (Long) -> Unit) {
     val partial = File(directory(context), modelFile.name + PARTIAL_SUFFIX)
+
+    fetch(AppDependencies.okHttpClient, "$BASE_URL/${modelFile.name}", partial, modelFile.sha256, onProgress)
+
+    if (!partial.renameTo(file(context, modelFile.name))) {
+      throw IOException("Could not move ${modelFile.name} into place")
+    }
+
+    Log.i(TAG, "Installed ${modelFile.name}")
+  }
+
+  /** Downloads [url] into [partial], picking up where an earlier attempt stopped, and checks the result against [sha256]. */
+  @VisibleForTesting
+  @Throws(IOException::class)
+  internal fun fetch(client: OkHttpClient, url: String, partial: File, sha256: String, onProgress: (Long) -> Unit) {
     val alreadyHave = if (partial.exists()) partial.length() else 0
 
     val request = Request.Builder()
-      .url("$BASE_URL/${modelFile.name}")
+      .url(url)
       .apply { if (alreadyHave > 0) header("Range", "bytes=$alreadyHave-") }
       .build()
 
-    AppDependencies.okHttpClient.newCall(request).execute().use { response ->
+    client.newCall(request).execute().use { response ->
       if (!response.isSuccessful) {
-        throw IOException("Download of ${modelFile.name} failed with ${response.code}")
+        throw IOException("Download of ${partial.name} failed with ${response.code}")
       }
 
       // A server that ignored our Range header sends the whole file again, so start over rather than append to it.
@@ -172,16 +197,10 @@ object TranscriptionModel {
     }
 
     val hash = partial.sha256()
-    if (hash != modelFile.sha256) {
+    if (hash != sha256) {
       partial.delete()
-      throw IOException("${modelFile.name} hashed to $hash, expected ${modelFile.sha256}")
+      throw IOException("${partial.name} hashed to $hash, expected $sha256")
     }
-
-    if (!partial.renameTo(file(context, modelFile.name))) {
-      throw IOException("Could not move ${modelFile.name} into place")
-    }
-
-    Log.i(TAG, "Installed ${modelFile.name}")
   }
 
   private fun directory(context: Context): File = File(context.filesDir, DIRECTORY)

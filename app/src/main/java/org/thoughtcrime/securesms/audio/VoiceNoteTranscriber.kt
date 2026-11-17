@@ -16,11 +16,21 @@ import com.k2fsa.sherpa.onnx.OfflineModelConfig
 import com.k2fsa.sherpa.onnx.OfflineRecognizer
 import com.k2fsa.sherpa.onnx.OfflineRecognizerConfig
 import com.k2fsa.sherpa.onnx.OfflineTransducerModelConfig
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Deferred
+import kotlinx.coroutines.SupervisorJob
+import kotlinx.coroutines.async
+import kotlinx.coroutines.sync.Mutex
+import kotlinx.coroutines.sync.withLock
+import org.signal.core.util.concurrent.SignalDispatchers
 import org.signal.core.util.logging.Log
+import org.thoughtcrime.securesms.attachments.DatabaseAttachment
+import org.thoughtcrime.securesms.database.SignalDatabase
 import org.thoughtcrime.securesms.keyvalue.SignalStore
 import org.thoughtcrime.securesms.media.DecryptableUriMediaInput
 import java.io.IOException
 import java.nio.ByteOrder
+import java.util.concurrent.ConcurrentHashMap
 
 /**
  * Turns a voice message into text on this device, with no network involved.
@@ -43,6 +53,48 @@ object VoiceNoteTranscriber {
   /** True when the user opted in and the model is installed, so a voice message can be transcribed offline. */
   fun isAvailable(context: Context): Boolean {
     return SignalStore.settings.voiceMessageTranscription && TranscriptionModel.isInstalled(context)
+  }
+
+  private val scope = CoroutineScope(SupervisorJob() + SignalDispatchers.IO)
+  private val oneAtATime = Mutex()
+  private val inFlight: MutableSet<Long> = ConcurrentHashMap.newKeySet()
+
+  /** True while [transcribeAndStore] is working on this attachment, so it is not offered a second time. */
+  fun isTranscribing(attachment: DatabaseAttachment): Boolean = attachment.attachmentId.id in inFlight
+
+  /**
+   * Transcribes a voice message and stores the text with its attachment, which puts it in the chat.
+   *
+   * The work outlives the screen that asked for it, and runs one message at a time because every run loads the whole
+   * model into memory.
+   *
+   * @return Whether a transcript was stored, or null if this attachment is already being transcribed or has no audio.
+   */
+  fun transcribeAndStore(context: Context, attachment: DatabaseAttachment): Deferred<Boolean>? {
+    val uri = attachment.uri ?: return null
+    val id = attachment.attachmentId.id
+
+    if (!inFlight.add(id)) {
+      return null
+    }
+
+    return scope.async {
+      try {
+        val transcript = oneAtATime.withLock { transcribe(context.applicationContext, uri) }
+
+        if (transcript.isBlank()) {
+          false
+        } else {
+          SignalDatabase.attachments.writeTranscript(attachment.attachmentId, attachment.mmsId, transcript)
+          true
+        }
+      } catch (e: Exception) {
+        Log.w(TAG, "Failed to transcribe voice message", e)
+        false
+      } finally {
+        inFlight.remove(id)
+      }
+    }
   }
 
   /**

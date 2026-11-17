@@ -9,6 +9,7 @@ import io.reactivex.rxjava3.core.Observable
 import io.reactivex.rxjava3.core.Single
 import io.reactivex.rxjava3.subjects.BehaviorSubject
 import org.signal.core.util.JsonUtils
+import org.signal.libsignal.net.ChatConnection
 import org.signal.network.websocket.WebSocketRequestMessage
 import org.signal.network.websocket.WebSocketResponseMessage
 import org.signal.network.websocket.WebsocketResponse
@@ -179,6 +180,15 @@ class BenchmarkWebSocketConnection : WebSocketConnection {
     }
 
     throw okio.IOException("fake timeout")
+  }
+
+  /**
+   * There is no real chat connection behind this, and the default throws [UnsupportedOperationException], which takes
+   * the app down from whatever thread asked. Fail the way an offline socket would instead, e.g. so that an attachment
+   * upload just gives up.
+   */
+  override suspend fun <T> runWithChatConnection(callback: (ChatConnection) -> T): T {
+    throw okio.IOException("no chat connection")
   }
 
   fun addQueueEmptyMessage() {

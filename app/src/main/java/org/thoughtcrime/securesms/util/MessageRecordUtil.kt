@@ -5,7 +5,6 @@ package org.thoughtcrime.securesms.util
 import android.content.Context
 import org.thoughtcrime.securesms.R
 import org.thoughtcrime.securesms.attachments.DatabaseAttachment
-import org.thoughtcrime.securesms.database.AttachmentTable
 import org.thoughtcrime.securesms.database.MessageTypes
 import org.thoughtcrime.securesms.database.model.MessageRecord
 import org.thoughtcrime.securesms.database.model.MmsMessageRecord
@@ -35,19 +34,18 @@ fun MessageRecord.hasLocation(): Boolean = isMms && ((this as MmsMessageRecord).
 
 fun MessageRecord.hasAudio(): Boolean = isMms && (this as MmsMessageRecord).slideDeck.audioSlide != null
 
-/** The voice message attachment of this message, if it has one that is downloaded. */
-fun MessageRecord.voiceNoteAttachment(): DatabaseAttachment? {
-  if (!isMms) {
-    return null
-  }
+/**
+ * The voice message attachment of this message, if its audio is on this device.
+ *
+ * The audio is what matters here, not the transfer state: a received voice message has to be downloaded first, while
+ * one you recorded yourself is already on disk whether or not it finished uploading.
+ */
+fun MessageRecord.voiceNoteAttachment(): DatabaseAttachment? = audioAttachment()?.takeIf { it.voiceNote && it.hasData }
 
-  val attachment = (this as MmsMessageRecord).slideDeck.audioSlide?.asAttachment() as? DatabaseAttachment
+/** The on-device transcript of this message's voice message, if one was made. Keeps showing after the audio is gone. */
+fun MessageRecord.voiceNoteTranscript(): String? = audioAttachment()?.transcript
 
-  return attachment?.takeIf { it.voiceNote && it.transferState == AttachmentTable.TRANSFER_PROGRESS_DONE }
-}
-
-/** The on-device transcript of this message's voice message, if one was made. */
-fun MessageRecord.voiceNoteTranscript(): String? = voiceNoteAttachment()?.transcript
+private fun MessageRecord.audioAttachment(): DatabaseAttachment? = (this as? MmsMessageRecord)?.slideDeck?.audioSlide?.asAttachment() as? DatabaseAttachment
 
 fun MessageRecord.isCaptionlessMms(context: Context): Boolean = isMms && isDisplayBodyEmpty(context) && (this as MmsMessageRecord).slideDeck.textSlide == null
 

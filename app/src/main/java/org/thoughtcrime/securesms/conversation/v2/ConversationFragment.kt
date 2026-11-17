@@ -242,6 +242,7 @@ import org.thoughtcrime.securesms.conversation.MessageSendType
 import org.thoughtcrime.securesms.conversation.MessageStyler.getStyling
 import org.thoughtcrime.securesms.conversation.PinnedMessagesBottomSheet
 import org.thoughtcrime.securesms.conversation.ReactionAction
+import org.thoughtcrime.securesms.conversation.ReactionMenu
 import org.thoughtcrime.securesms.conversation.ReenableScheduledMessagesDialogFragment
 import org.thoughtcrime.securesms.conversation.ScheduleMessageContextMenu
 import org.thoughtcrime.securesms.conversation.ScheduleMessageDialogCallback
@@ -3267,6 +3268,17 @@ class ConversationFragment :
       items.add(
         ActionItem(CoreUiR.drawable.symbol_copy_android_24, resources.getString(R.string.conversation_selection__menu_copy)) {
           handleCopyMessage(selectedParts)
+          finishActionMode()
+        }
+      )
+    }
+
+    // A voice message that is still sending can't be reacted to, so this menu is the only one it gets.
+    val singleMessage: ConversationMessage? = selectedParts.map { it.conversationMessage }.distinct().singleOrNull()
+    if (singleMessage != null && ReactionMenu.canTranscribe(requireContext(), singleMessage.messageRecord)) {
+      items.add(
+        ActionItem(CoreUiR.drawable.symbol_text_24, resources.getString(R.string.conversation_selection__menu_transcribe)) {
+          handleTranscribe(singleMessage)
           finishActionMode()
         }
       )

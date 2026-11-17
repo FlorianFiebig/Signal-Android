@@ -1,0 +1,36 @@
+app/src/main/java/org/thoughtcrime/securesms/audio/TranscriptionModel.kt
+  s_1114b930d8237a::t_1d4a9153b226ad 19
+  s_1114b930d8237a::t_42b6a788c0c15b 21
+  s_1114b930d8237a::t_2ddc816a1926ec 15
+  s_1114b930d8237a::t_485e379b41363a 85-89,96-100
+  s_1114b930d8237a::t_fa7f1e09f5f05e 92
+  s_1114b930d8237a::t_9d1a459b1029ed 152-165,169,173,175
+  s_1114b930d8237a::t_d8bec36480d910 200,202
+app/src/main/java/org/thoughtcrime/securesms/audio/VoiceNoteTranscriber.kt
+  s_1114b930d8237a::t_de03ebc7e9e8af 19-25,27-28,33
+  s_1114b930d8237a::t_4887732a7386c6 58-99
+app/src/main/java/org/thoughtcrime/securesms/conversation/ReactionMenu.kt
+  s_1114b930d8237a::t_a7996d11feeaf8 129-130,134-135
+app/src/main/java/org/thoughtcrime/securesms/conversation/v2/ConversationFragment.kt
+  s_1114b930d8237a::t_64462ec174378d 3664,3669
+app/src/test/java/org/thoughtcrime/securesms/audio/TranscriptionModelTest.kt
+  s_1114b930d8237a::t_f3f3d82d2ed72e 42-76
+  s_1114b930d8237a::t_c27b62c5ac3f88 12-15,17-19
+  s_1114b930d8237a::t_f3a6e8c1968842 41
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.5",
+  "base_commit_sha": "cdf7ec8fe275d699ae86e79efb877c0b8b9ab443",
+  "prompts": {},
+  "sessions": {
+    "s_1114b930d8237a": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "32d033e3-b867-40fc-a47c-c020d23f0ae3",
+        "model": "claude-fable-5-2"
+      },
+      "human_author": "Florian Fiebig <florian.fiebig@mailbox.org>"
+    }
+  }
+}
